@@ -1,162 +1,153 @@
+# -*- coding: utf-8 -*-
+#Copyright (c) 2013 jpbanczek@gmail.com
+#All rights reserved.
 #
-##############################################################################
-# PySeab - Simplificador de Expressões Algébricas Booleanas.
-# Autor: Jhonathan Paulo Banczek
-# Data: 07/03/2013
-# Última Modificação: 17/05/2013 - 3,7
-# google code - mercurial.
-# Python 3.3.1 - Linux, Ubuntu 32 bit. 13.04
-# -------------------------------------------------------------
-#                       Implementações:
-# 1 -> Alfabeto Reconhecido. (ok).
-# 2 -> Análise Léxica. (ok)
-# 3 -> Análise Sintática. <implementando>
-# 5 -> Balanceamento dos Parênteses. <ok>
-# 6 -> Classe Simp <implementando __init__>
-# 7 -> Implementacao da analise sintatica (método tabela) <implementando>
-#---------------------------------------------------------------|
+#Redistribution and use in source and binary forms, with or without
+#modification, are permitted provided that the following conditions are met:
+#
+#1. Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+#ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+#ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+#The views and conclusions contained in the software and documentation are those
+#of the authors and should not be interpreted as representing official policies,
+#either expressed or implied, of the FreeBSD Project.
 
-class Simp( object ):
+__author__ = "Jhonathan Paulo Banczek (jpbanczek@gmail.com)"
+__copyright__ = "Copyright (C) 2013 Jhonathan Paulo Banczek"
+__license__ = "New BSD License"
 
-  def __init__( self, exp ):
+class Pyseab(object):
+    """classe Pyseab """
 
-    self.exp = exp
+    def __init__(self, exp):
 
-    # Alfabeto reconhecido com seu significado (dict)
-    self.alf = {'A':['.','+',')'],'B':['.','+',')'],'C':['.','+',')'],
-               'D':['.','+',')'],'E':['.','+',')'], 'F':['.','+',')'],
-               'G':['.','+',')'],'H':['.','+',')'], 'I':['.','+',')'],
-               'J':['.','+',')'],'K':['.','+',')'],'L':['.','+',')'],
-               'M':['.','+',')'],'N':['.','+',')'],'O':['.','+',')'],
-               'P':['.','+',')'],'Q':['.','+',')'],'R':['.','+',')'],
-               'S':['.','+',')'],'T':['.','+',')'], 'U':['.','+',')'],
-               'V':['.','+',')'],'X':['.','+',')'],'Z':['.','+',')'],
-               'W':['.','+',')'], 'Y':['.','+',')'],'~':['x','(','~'],
-                '+':['x','~','('], '.':['x','~','('], '(':['x','~','('],
-                ')':['x','~',')']}
+        self.exp = exp
+        self._alf = ['X', '.', '+', '~', '(', ')']
 
-    # implementação da tabela de analise sintática
-    self.alf2 = { 'X':{'X':'00' ,'.':'11' ,'+':'11' ,'~':'10',
-                  '(':'10' ,')':'01'},
-                '.':{'X':'11' ,'.':'00' , '+':'00' ,'~':'01' ,
-                  '(':'01' ,')':'10'},
-                '+':{'X':'11' ,'.':'00' ,'+':'00' ,'~':'01' ,
-                  '(':'11' ,')':'00'},
-                '~':{'X':'01' ,'.':'00' ,'+':'10' ,'~':'11' ,
-                  '(':'11' ,')':'00'},
-                '(':{'X':'01' ,'.':'10' ,'+':'10' ,'~':'01',
-                  '(':'11' ,')':'00'},
-                ')':{'X':'10' ,'.':'01' ,'+':'01' ,'~':'00',
-                  '(':'00' ,')':'11'}}
 
-# Método para Analise léxica.
-# retorno: True, False
-  def _analise_Lexica( self ):
+    def _analise_Lexica(self):
+        """ Efetua a análise léxica, retorno: True, False """
 
-    # flag variavel True se tiver tudo correto, caso contrario False
-    flag = True
+        letras = 'ABCDEFGHIJKLMNOPQRSTUVXZWY'
 
-    # para cada caracter na formula, procure se existe no dict: alf
-    # se não existir retorna: None
-    for i in self.exp:
-      if self.alf.get(i) == None:
-        print('caracter: ' + i + " não suportado")
-        flag = False
-        break
+        for i in self.exp:
+            if self._alf.count(i) == 0:
+                if letras.find(i) == -1:
+                    return False
+                else:
+                    pass
 
-    return flag
+        return True
 
-  # Método para Analise SIntática
-  # retorno: True, False
-  def _analise_Sintatica( self ):
+    def _balanceamento(self):
+        """
+        verifica se os parentes estão balanceados
+        retorno: True, False
+        """
 
-    flag = True
-    var = 'ABCDEFGHIJKLMNOPQRSTUVXZWY'
+        return self.exp.count('(') == self.exp.count(')')
 
-    for i in range( len(self.exp) ):
-      for j in self.alf.get(self.exp[i]):
 
-        if i == len(self.exp)-1:
-          #print('se for ultimo numero')
-          flag = True
-          break
+    def _analise_Sintatica(self):
+        """ Efetua a análise sintática, retorno: True, False """
 
-        elif j == 'x':
-          #print('se for j for uma variavel')
+        flag = True
+        letras = 'ABCDEFGHIJKLMNOPQRSTUVXZWY'
+        aux = self.exp
 
-          if var.find(self.exp[i+1]) == -1:
-            #print('se o proximo caracter nao for uma letra')
+        #conjunto de caracteres nao permitidos
+        np = ['00', '01', '03', '12', '14', '22', '24', '32', '34',
+         '40', '41', '43']
+
+        #Substitui os valores originais, por números inteiro [Godel]
+        aux = aux.replace('~','1')
+        aux = aux.replace('.','2')
+        aux = aux.replace('+','2')
+        aux = aux.replace('(','3')
+        aux = aux.replace(')','4')
+
+        #subistitui todas as letras da expressão pelo número '0'
+        for i in letras:
+            aux = aux.replace(i,'0')
+
+        # Inicio da análise
+        # Se iniciar com '+' ou '.' ou ')' = inconsistente (2, 4)
+        # Se terminar com '+' ou '.' ou '~' ou '(' = inconsistente (1, 2, 3).
+        if (aux.startswith('2') is True or aux.startswith('4') is True or
+            aux.endswith('1') is True or aux.endswith('2') is True or
+            aux.endswith('3') is True):
             flag = False
-          else:
-            #print('é uma letra')
-            flag = True
+
+        #verifica se a expressão contem os caracteres não permitidos
+        for i in np:
+            if aux.find(i) != -1:
+                flag = False
+                break
+
+        return flag
+
+
+    def analise( self ):
+        """
+        executa a análise léxica, balanceamento de parenteses
+        e a análise sintátca.
+        """
+
+        self.exp = self.exp.upper()
+        self.exp = self.exp.strip()
+        self.exp = self.exp.replace(' ', '')
+
+        if self._analise_Lexica() == True:
+            print("\tAnálise >>> Léxica -consistente-")
+
+            if self._balanceamento() == True:
+                print("\tAnálise >>> Balanceamento - consistente-")
+            else:
+                print("\tAnálise >>> Balanceamento com INCONSISTENCIA")
+
+            if self._analise_Sintatica() == True:
+                print("\tAnálise >>> Sintática -consistente-")
+            else:
+                print("\tAnálise >>> Sintática com INCONSISTENCIA")
+        else:
+            print("\tAnálise >>> Léxica com INCONSISTENCIA")
+
+
+def init():
+    """função apenas para executar no terminal o programa """
+
+    print("""\n\t Copyright (c) 2013 jpbanczek@gmail.com
+        \tAll rights reserved.""")
+
+    while True:
+        print("\n", "==" * 5, """Simplificador de Expressões
+            Algébricas Booleanas""", "==" * 5)
+
+        var = ""
+        var = input("\n    Expressão >>> ")
+
+        if var == -1:
             break
 
-        elif j == self.exp[i+1]:
-          #print('entro no if caso j for igual ao proximo caracter')
-          flag = True
-          break
-        else:
-          #print('entro senao externo')
-          flag = False
+        #istancia um objeto Pyseab e passa a expressão
+        s = Pyseab(var)
+        s.analise()
+        print("=" * 71)
 
-    return flag
-
-  #------------------- analise sintatica 2 self.alf2--------------------
-  def analise_sintatica2( self ):
-
-    flag = True
-    #var = 'ABCDEFGHIJKLMNOPQRSTUVXZWY'
-
-    for i in range( len( self.exp ) ):
-
-      # --- recebe o antecessor
-      try:
-        a = self.exp[i-1]
-      except:
-        a = self.exp[i]
-
-      # --- recebe o sucessor
-      try:
-        s = self.exp[i+1]
-      except:
-        s = self.exp[i]
-
-      if self.exp[i].isalpha() == True:
-        pass
-
-
-
-  def _balanceamento( self ):
-
-    x = self.exp.count('(')
-    y = self.exp.count(')')
-
-    if x == y:
-      return True
-    else:
-      return False
-
-  def analise( self ):
-
-    # converte pra maiusculo
-    self.exp = self.exp.upper()
-    # retira espaços no começo e no fim da string
-    self.exp = self.exp.strip()
-    # retira espaços no meio da string
-    self.exp = self.exp.replace(' ', '')
-
-    if self._analise_Lexica() == True:
-      print("> Analise léxica -consistente-")
-
-      if self._balanceamento() == True:
-        print("> Balanceamento - consistente-")
-
-        if self._analise_Sintatica() == True:
-          print("> Analise Sintática -consistente-")
-        else:
-          print(" > analise sintática com INCONSISTENCIA")
-      else:
-         print(" > Balanceamento com INCONSISTENCIA")
-    else:
-      print(" > analise léxica com INCONSISTENCIA")
+if __name__ == "__main__":
+    init()
+    #pass
