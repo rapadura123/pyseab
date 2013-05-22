@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+# Pyseab - Simplificador de Expressões Algébricas Booleanas
+
 #Copyright (c) 2013 jpbanczek@gmail.com
 #All rights reserved.
 #
@@ -30,28 +33,27 @@ __author__ = "Jhonathan Paulo Banczek (jpbanczek@gmail.com)"
 __copyright__ = "Copyright (C) 2013 Jhonathan Paulo Banczek"
 __license__ = "New BSD License"
 
-class Pyseab(object):
-    """classe Pyseab """
+class PySeab(object):
+    """classe PySeab """
 
-    def __init__(self, exp):
+    def __init__(self):
 
-        self.exp = exp
-        self._alf = ['X', '.', '+', '~', '(', ')']
-
+        self.expressao = None
 
     def _analise_Lexica(self):
         """ Efetua a análise léxica, retorno: True, False """
 
-        letras = 'ABCDEFGHIJKLMNOPQRSTUVXZWY'
+        letras = set('ABCDEFGHIJKLMNOPQRSTUVXZWY')
+        alf = set('X.+~()')
 
-        for i in self.exp:
-            if self._alf.count(i) == 0:
-                if letras.find(i) == -1:
-                    return False
-                else:
-                    pass
+        for i in self.expressao:
+            if i in alf or i in letras:
+                pass
+            else:
+                return False
 
         return True
+
 
     def _balanceamento(self):
         """
@@ -59,7 +61,7 @@ class Pyseab(object):
         retorno: True, False
         """
 
-        return self.exp.count('(') == self.exp.count(')')
+        return self.expressao.count('(') == self.expressao.count(')')
 
 
     def _analise_Sintatica(self):
@@ -67,7 +69,7 @@ class Pyseab(object):
 
         flag = True
         letras = 'ABCDEFGHIJKLMNOPQRSTUVXZWY'
-        aux = self.exp
+        aux = self.expressao
 
         #conjunto de caracteres nao permitidos
         np = ['00', '01', '03', '12', '14', '22', '24', '32', '34',
@@ -101,53 +103,37 @@ class Pyseab(object):
         return flag
 
 
+    def _simplificacao(self):
+        """ simplica a expressão original """
+
+        pass
+
+
     def analise( self ):
         """
         executa a análise léxica, balanceamento de parenteses
         e a análise sintátca.
         """
 
-        self.exp = self.exp.upper()
-        self.exp = self.exp.strip()
-        self.exp = self.exp.replace(' ', '')
+        self.expressao = self.expressao.upper()
+        self.expressao = self.expressao.strip()
+        self.expressao = self.expressao.replace(' ', '')
 
-        if self._analise_Lexica() == True:
-            print("\tAnálise >>> Léxica -consistente-")
+        if self.expressao == '':
+            print('expressao vazia')
 
-            if self._balanceamento() == True:
-                print("\tAnálise >>> Balanceamento - consistente-")
-            else:
-                print("\tAnálise >>> Balanceamento com INCONSISTENCIA")
-
-            if self._analise_Sintatica() == True:
-                print("\tAnálise >>> Sintática -consistente-")
-            else:
-                print("\tAnálise >>> Sintática com INCONSISTENCIA")
         else:
-            print("\tAnálise >>> Léxica com INCONSISTENCIA")
+            if self._analise_Lexica() == True:
+                print("\tAnálise >>> Léxica -consistente-")
 
+                if self._balanceamento() == True:
+                    print("\tAnálise >>> Balanceamento - consistente-")
+                else:
+                    print("\tAnálise >>> Balanceamento com INCONSISTENCIA")
 
-def init():
-    """função apenas para executar no terminal o programa """
-
-    print("""\n\t Copyright (c) 2013 jpbanczek@gmail.com
-        \tAll rights reserved.""")
-
-    while True:
-        print("\n", "==" * 5, """Simplificador de Expressões
-            Algébricas Booleanas""", "==" * 5)
-
-        var = ""
-        var = input("\n    Expressão >>> ")
-
-        if var == -1:
-            break
-
-        #istancia um objeto Pyseab e passa a expressão
-        s = Pyseab(var)
-        s.analise()
-        print("=" * 71)
-
-if __name__ == "__main__":
-    init()
-    #pass
+                if self._analise_Sintatica() == True:
+                    print("\tAnálise >>> Sintática -consistente-")
+                else:
+                    print("\tAnálise >>> Sintática com INCONSISTENCIA")
+            else:
+                print("\tAnálise >>> Léxica com INCONSISTENCIA")
