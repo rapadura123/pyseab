@@ -34,7 +34,6 @@ __copyright__ = "Copyright (C) 2013 Jhonathan Paulo Banczek"
 __license__ = "New BSD License"
 
 class PySeab(object):
-    """classe PySeab """
 
     def __init__(self):
 
@@ -60,7 +59,6 @@ class PySeab(object):
         verifica se os parentes estão balanceados
         retorno: True, False
         """
-
         return self.expressao.count('(') == self.expressao.count(')')
 
 
@@ -123,17 +121,28 @@ class PySeab(object):
             print('expressao vazia')
 
         else:
+            flag_analise = [' -> Analise Léxica Consistente;\n', #0
+            ' -> Balanceamento Consistente;\n"',                 #1
+            ' -> Análise Sintática Consistente;\n',              #2
+            ' -> Análise Léxica com INCONSISTENCIA;\n',          #3
+            ' -> Balanceamento com INCONSISTENCIA;\n',           #4
+            ' -> Análise Sintática com INCONSISTENCIA;\n']       #5
+
+            resp = []
+
             if self._analise_Lexica() == True:
-                print("\tAnálise >>> Léxica -consistente-")
-
+                resp.append(0)
                 if self._balanceamento() == True:
-                    print("\tAnálise >>> Balanceamento - consistente-")
+                    resp.append(1)
+                    if self._analise_Sintatica() == True:
+                        resp.append(2)
+                    else:
+                        resp.append(5)
                 else:
-                    print("\tAnálise >>> Balanceamento com INCONSISTENCIA")
-
-                if self._analise_Sintatica() == True:
-                    print("\tAnálise >>> Sintática -consistente-")
-                else:
-                    print("\tAnálise >>> Sintática com INCONSISTENCIA")
+                    resp.append(4)
             else:
-                print("\tAnálise >>> Léxica com INCONSISTENCIA")
+                resp.append(3)
+
+            #saida, resposta da analise
+            for i in resp:
+                print(flag_analise[i])
